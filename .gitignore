@@ -127,3 +127,14 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Keras
+models/
+
+# Datasets
+dataset/
+dataset_gray/
+test_images/
+
+# PyCharm
+.idea/
