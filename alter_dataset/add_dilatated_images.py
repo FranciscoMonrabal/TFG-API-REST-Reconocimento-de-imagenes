@@ -6,21 +6,28 @@ import os
 
 def main():
 
-    di = DatasetIterator(r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\dataset",
-                         r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\dataset_augmented",
-                         create_dialated_versions)
+    di = DatasetIterator(
+        r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\datasets\dataset",
+        r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\datasets\dataset_augmented",
+        dilate_image, False, kernel_size=(1, 1))
+    di.execute()
+
+    di.args = {"kernel_size": (3, 3)}
+    di.execute()
+
+    di.args = {"kernel_size": (5, 5)}
+    di.execute()
 
 
-def create_dialated_versions(image_path):
-    dilatate_image(image_path, (1, 1))
-    dilatate_image(image_path, (3, 3))
-    dilatate_image(image_path, (5, 5))
-
-
-def dilatate_image(image_path, matrix_size):
+def dilate_image(image_path, kernel_size):
     img = cv.imread(image_path, cv.IMREAD_GRAYSCALE)
-    kernel = np.ones(matrix_size, np.uint8)
-    return cv.dilate(img, kernel, iterations=1)
+    kernel = np.ones(kernel_size, np.uint8)
+    # Technically we are "eroding" because our image is expected to be black over white
+    return cv.erode(img, kernel, iterations=1)
+
+
+if __name__ == '__main__':
+    main()
 
 
 

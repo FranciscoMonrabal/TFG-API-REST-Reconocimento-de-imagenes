@@ -27,7 +27,9 @@ def adjust_padding(distance):
 
 def main():
 
-    img = cv2.imread(r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\test_images\numbers.jpeg", cv2.IMREAD_GRAYSCALE)
+    img = cv2.imread(
+        r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\test_images\e4eff7d0-7fae-4f75-a237-4c2a33e4ed54.jpg"
+        , cv2.IMREAD_GRAYSCALE)
     blurred = cv2.GaussianBlur(img, (5, 5), 0)
 
     edged = cv2.Canny(blurred, 30, 150)
@@ -69,9 +71,11 @@ def main():
     equation_chars = np.array([c for c in equation_chars], dtype="float32")
 
     print(equation_chars)
-    model = keras.models.load_model(r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\models\symbol_recognition_3")
+    model = keras.models.load_model(
+        r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\models\symbol_recognition_2")
     predictions = model.predict(equation_chars)
-    labels = sorted(os.listdir(r'C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\dataset'))
+    labels = sorted(os.listdir(
+        r'C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\datasets\dataset'))
 
     for prediction, box in zip(predictions, bounding_boxes):
         (x, y, w, h) = box
