@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 def main():
 
     # Parameter definition
-    dataset_dir = r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\dataset"
+    dataset_dir = r"/datasets/dataset"
     img_height, img_width = 45, 45
     batch_size = 256
     epochs = 10
