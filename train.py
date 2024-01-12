@@ -9,7 +9,7 @@ def main():
     dataset_dir = r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\datasets\dataset_augmented"
     img_height, img_width = 45, 45
     batch_size = 256
-    epochs = 10
+    epochs = 5
     num_classes = 20
 
     # Dataset import
@@ -26,9 +26,9 @@ def main():
     )
 
     # Normalization for lighter input values
-    normalization_layer = layers.Rescaling(1./255)
-    train_df = train_df.map(lambda x, y: (normalization_layer(x), y))
-    val_df = val_df.map(lambda x, y: (normalization_layer(x), y))
+    #normalization_layer = layers.Rescaling(1./255)
+    #train_df = train_df.map(lambda x, y: (normalization_layer(x), y))
+    #val_df = val_df.map(lambda x, y: (normalization_layer(x), y))
 
     # Model definition
     model = models.Sequential([
@@ -41,12 +41,11 @@ def main():
         layers.MaxPooling2D(),
         layers.Flatten(),
         layers.Dense(128, activation='relu'),
-        layers.Dense(num_classes),
-        layers.Softmax()
+        layers.Dense(num_classes, activation='softmax')
     ])
 
     # Compile
-    model.compile(optimizer=keras.optimizers.Adam(0.0002),
+    model.compile(optimizer='adam',
                   loss=keras.losses.SparseCategoricalCrossentropy(),
                   metrics=['accuracy'])
     model.summary()
@@ -59,7 +58,7 @@ def main():
     )
 
     model.save(
-        r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\models\symbol_recognition_3")
+        r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\models\symbol_recognition_9")
 
     # Summary analysis
     acc = history.history['accuracy']
