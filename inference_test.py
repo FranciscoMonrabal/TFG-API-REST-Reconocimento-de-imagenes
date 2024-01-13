@@ -53,22 +53,6 @@ def merge_boxes(source, target):
     return ret
 
 
-def get_all_overlaps_for_box(boxes, bounds):
-    """returns all overlapping boxes + itself"""
-
-    overlaps = []
-    for a in boxes:
-        print(overlap(bounds, convert_xyhw_to_point_to_point(a)))
-        if overlap(bounds, convert_xyhw_to_point_to_point(a)):
-            overlaps.append(a)
-            boxes.remove(a)
-
-    if len(overlaps) > 0:
-        overlaps.insert(0, bounds)
-
-    return overlaps
-
-
 def transform_points_list_to_boxes_tuple(blist):
 
     ret = []
@@ -115,12 +99,52 @@ def group_overlapped_boxes(input_list):
     return transform_points_list_to_boxes_tuple(ret)
 
 
+def remove_small_boxes(b_list, min_w=15, min_h=15):
+
+    ret = []
+
+    for box in b_list:
+        if box[2] >= min_w or box[3] >= min_h:
+            ret.append(box)
+
+    return ret
+
+
 def replace_posible_equals(equation_string):
 
     ret = equation_string.replace("--", "=")
     ret = ret.replace("-=", "=")
+    ret = ret.replace("==", "=")
     if len(ret.split("=")) > 2:
         raise TypeError("Multiple equal signs, or -- detected")
+
+    return ret
+
+
+def add_products(equation_string):
+
+    ret = ""
+    prev_char = ""
+
+    for char in equation_string:
+        if char == "(":
+            if prev_char.isnumeric() or prev_char == "x" or prev_char == "(":
+                ret += r"*"
+
+        if char == "x":
+            if prev_char.isnumeric():
+                ret += r"*"
+
+        if prev_char == "x":
+            if char.isnumeric():
+                ret += r"*"
+
+        if prev_char == ")":
+            if char.isnumeric() or char == "x":
+                ret += r"*"
+
+        ret += char
+        prev_char = char
 
     return ret
 
@@ -128,6 +152,9 @@ def replace_posible_equals(equation_string):
 def interpret_equation_string(equation_string):
 
     equation_string = replace_posible_equals(equation_string)
+    equation_string = add_products(equation_string)
+    print(f"Final equation: {equation_string}")
+
     equation_splited = equation_string.split("=")
     left_eq = sympify(equation_splited[0])
     right_eq = sympify(equation_splited[1])
@@ -154,7 +181,7 @@ def adjust_padding(distance):
 def main():
 
     img = cv2.imread(
-        r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\test_images\ecuacion7.jpeg"
+        r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\test_images\numbers.jpeg"
         , cv2.IMREAD_GRAYSCALE)
     blurred = cv2.GaussianBlur(img, (5, 5), 0)
 
@@ -163,6 +190,24 @@ def main():
     contours = cv2.findContours(dilated.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     contours = imutils.grab_contours(contours)
     contours, bounding_boxes = sort_contours(contours, method="left-to-right")
+
+    print("Pre group: ")
+    print(f"Size: {len(bounding_boxes)}")
+    print(bounding_boxes)
+    print("===========================================")
+    bounding_boxes = group_overlapped_boxes(bounding_boxes)
+    print("Post group: ")
+    print(f"Size: {len(bounding_boxes)}")
+    print(bounding_boxes)
+    print("===========================================")
+    print("Pre removal small: ")
+    print(f"Size: {len(bounding_boxes)}")
+    print(bounding_boxes)
+    print("===========================================")
+    bounding_boxes = remove_small_boxes(bounding_boxes)
+    print("Post removal small: ")
+    print(f"Size: {len(bounding_boxes)}")
+    print(bounding_boxes)
 
     equation_chars = []
     for box in bounding_boxes:
@@ -205,15 +250,6 @@ def main():
         r'C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\datasets\dataset'))
 
     final_string = ""
-
-    print("Pre group: ")
-    print(f"Size: {len(bounding_boxes)}")
-    print(bounding_boxes)
-    print("===========================================")
-    bounding_boxes = group_overlapped_boxes(bounding_boxes)
-    print("Post group: ")
-    print(f"Size: {len(bounding_boxes)}")
-    print(bounding_boxes)
 
     for prediction, box in zip(predictions, bounding_boxes):
         x, y, w, h = box
