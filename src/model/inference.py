@@ -1,10 +1,15 @@
-# TODO: wait to see how to recieve the imagge from FLASK
+from tensorflow import keras
+import os
+import numpy as np
+from imutils.contours import sort_contours
 
-def launch():
+from cv_utils import *
+from sympy_utils import *
 
-    img = cv2.imread(
-        r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\test_images\ecuacion7.jpeg"
-        , cv2.IMREAD_GRAYSCALE)
+
+def run_interference(img_path):
+
+    img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
     blurred = cv2.GaussianBlur(img, (5, 5), 0)
 
     edged = cv2.Canny(blurred, 30, 150)
@@ -13,40 +18,11 @@ def launch():
     contours = imutils.grab_contours(contours)
     contours, bounding_boxes = sort_contours(contours, method="left-to-right")
 
-    equation_chars = []
-    for box in bounding_boxes:
-        (x, y, w, h) = box
-
-        roi = img[y:y + h, x:x + w]
-        roi_binary = cv2.threshold(roi, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-        (height, width) = roi_binary.shape
-
-        if height > width:
-            roi_binary = imutils.resize(roi_binary, height=45, inter=cv2.INTER_NEAREST)
-            padding = adjust_padding(int(45 - roi_binary.shape[1]))
-            print(f"{roi_binary.shape} | {padding} | {width} | {height}")
-            roi_binary = cv2.copyMakeBorder(roi_binary, top=0, bottom=0, left=padding[0], right=padding[1],
-                                            borderType=cv2.BORDER_CONSTANT, value=(255, 255, 255))
-        else:
-            roi_binary = imutils.resize(roi_binary, width=45, inter=cv2.INTER_NEAREST)
-            padding = adjust_padding(45 - roi_binary.shape[0])
-            print(f"{roi_binary.shape} | {padding}")
-            roi_binary = cv2.copyMakeBorder(roi_binary, left=0, right=0, top=padding[0], bottom=padding[1],
-                                            borderType=cv2.BORDER_CONSTANT, value=(255, 255, 255))
-
-        equation_chars.append(roi_binary)
-
-    index = 0
-    for char in equation_chars:
-        cv2.imshow(f"{index}", char)
-        index += 1
-
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
+    bounding_boxes = group_overlapped_boxes(bounding_boxes)
+    bounding_boxes = remove_small_boxes(bounding_boxes)
+    equation_chars = trim_character_rois(bounding_boxes, img)
     equation_chars = np.array([c for c in equation_chars], dtype="float32")
 
-    print(equation_chars)
     model = keras.models.load_model(
         r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\models\symbol_recognition_9")
     predictions = model.predict(equation_chars)
@@ -54,15 +30,6 @@ def launch():
         r'C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\datasets\dataset'))
 
     final_string = ""
-
-    print("Pre group: ")
-    print(f"Size: {len(bounding_boxes)}")
-    print(bounding_boxes)
-    print("===========================================")
-    bounding_boxes = group_overlapped_boxes(bounding_boxes)
-    print("Post group: ")
-    print(f"Size: {len(bounding_boxes)}")
-    print(bounding_boxes)
 
     for prediction, box in zip(predictions, bounding_boxes):
         x, y, w, h = box
@@ -72,7 +39,7 @@ def launch():
         label = labels[index]
         final_string += label
 
-        print("[INFO] {} - {:.2f}%".format(label, probability*100))
+        print("[INFO] {} - {:.2f}%".format(label, probability * 100))
         cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 0))
         cv2.putText(img, label, (x, y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 0))
 

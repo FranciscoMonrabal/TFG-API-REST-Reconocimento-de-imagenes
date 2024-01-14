@@ -3,21 +3,25 @@ import argparse
 
 
 def parse_arguments():
-    pass
+    parser = argparse.ArgumentParser()
+    parser.add_argument("ip", help="IP to the Equation server")
+    parser.add_argument("path", help="Path to the image to solve")
+    return parser.parse_args()
 
 
 def make_request(ip, img_path):
-    url = "http://127.0.0.1:5000/predict?format_type=file&get_thumb=false"
-    file = {'img1': open('image0.jpg', 'rb')}
-    response = requests.post(url=url, files=file)
-    print(response.text)
+    url = f"http://{ip}/predict?format_type=file&get_thumb=false"
+    file = {'img1': open(img_path, 'rb')}
+    return requests.post(url=url, files=file)
 
 
 def main():
-    pass
+    arguments = parse_arguments()
+    img = make_request(arguments.ip, arguments.path)
+
+
 
 
 if __name__ == "__main__":
     main()
 
-    
