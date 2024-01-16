@@ -23,11 +23,7 @@ def convert_xyhw_to_point_to_point(box):
 
 
 def overlap(source, target):
-    """returns true if the two boxes overlap"""
 
-    # TODO: Maybe add margin
-
-    # unpack points
     ret = True
     tl1, br1 = source
     tl2, br2 = target

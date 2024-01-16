@@ -7,9 +7,9 @@ from cv_utils import *
 from sympy_utils import *
 
 
-def run_interference(img_path):
+def run_interference(config):
 
-    img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+    img = cv2.imread(config.get_image_path(), cv2.IMREAD_GRAYSCALE)
     blurred = cv2.GaussianBlur(img, (5, 5), 0)
 
     edged = cv2.Canny(blurred, 30, 150)
@@ -23,27 +23,14 @@ def run_interference(img_path):
     equation_chars = trim_character_rois(bounding_boxes, img)
     equation_chars = np.array([c for c in equation_chars], dtype="float32")
 
-    model = keras.models.load_model(
-        r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\models\symbol_recognition_9")
+    model = keras.models.load_model(config.get_model_path())
     predictions = model.predict(equation_chars)
-    labels = sorted(os.listdir(
-        r'C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\datasets\dataset'))
+    labels = sorted(os.listdir(config.get_dataset_path()))
 
-    final_string = ""
+    final_string, img = analize_equation_and_image(predictions, bounding_boxes, img, labels)
+    result = interpret_equation_string(final_string)
+    write_result(img, result, config.get_final_image_path())
 
-    for prediction, box in zip(predictions, bounding_boxes):
-        x, y, w, h = box
+    # Implement in case the equation cant be solved
 
-        index = np.argmax(prediction)
-        probability = prediction[index]
-        label = labels[index]
-        final_string += label
-
-        print("[INFO] {} - {:.2f}%".format(label, probability * 100))
-        cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 0))
-        cv2.putText(img, label, (x, y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 0))
-
-        cv2.imshow("Image", img)
-        cv2.waitKey(0)
-
-    print(interpret_equation_string(final_string))
+    return result, config.get_final_image_path()

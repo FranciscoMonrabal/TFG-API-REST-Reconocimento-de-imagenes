@@ -1,5 +1,7 @@
+import math
 import cv2
 import imutils
+import numpy as np
 
 
 def convert_point_to_point_to_xyhw(box):
@@ -11,11 +13,7 @@ def convert_xyhw_to_point_to_point(box):
 
 
 def overlap(source, target):
-    """returns true if the two boxes overlap"""
 
-    # TODO: Maybe add margin
-
-    # unpack points
     ret = True
     tl1, br1 = source
     tl2, br2 = target
@@ -111,6 +109,33 @@ def adjust_padding(distance):
         ret = (int(new_dis), int(new_dis+1))
 
     return ret
+
+
+def analize_equation_and_image(predictions, bounding_boxes, img, labels):
+
+    equation = ""
+
+    for prediction, box in zip(predictions, bounding_boxes):
+        x, y, w, h = box
+
+        index = np.argmax(prediction)
+        probability = prediction[index]
+        label = labels[index]
+        equation += label
+
+        print("[INFO] {} - {:.2f}%".format(label, probability * 100))
+        cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 0))
+        cv2.putText(img, label, (x, y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 0))
+
+        cv2.imshow("Image", img)
+        cv2.waitKey(0)
+
+    return equation, img
+
+
+def write_result(img, result, img_path):
+    cv2.putText(img, result, (10, 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 1, 2)
+    cv2.imwrite(img_path, img)
 
 
 def trim_character_rois(blist, image):

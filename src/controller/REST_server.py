@@ -1,8 +1,9 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, send_file
 from PIL import Image
 import io
-import uuid
-from os import path
+
+from ..config import Config
+from ..model.inference import run_interference
 
 app = Flask(__name__)
 
@@ -10,22 +11,19 @@ app = Flask(__name__)
 @app.route('/equation', methods=['POST'])
 def predict():
 
-    images_path = "../../images/"
     format_type = request.args.get('format_type', default=None)
 
     if format_type in ['file', 'url']:
         if format_type == 'file':
             try:
+                config = Config()
                 image = Image.open(io.BytesIO(request.files["img1"].read()))
-                filename = str(uuid.uuid4())
-                img_path = path.join(images_path, "recieved_imgs", f"{filename}.jpeg")
-                image.save(img_path, "JPEG")
+                image.save(config.get_image_path(), "JPEG")
 
-                # call the inference and return the image
-                return jsonify({'message': 'Success!'})
+                result, send_image_path = run_interference(config)
+                return send_file(send_image_path)
             except:
-                ret = create_response({}, '3', 'Incorrect image format')
-                return ret
+                return "Inappropriate format file", 400
 
 
 if __name__ == '__main__':
