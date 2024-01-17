@@ -43,6 +43,16 @@ def add_products(equation_string):
     return ret
 
 
+def transform_result_list_into_string(results):
+
+    ret = ""
+
+    for result in results:
+        ret += f"x = {result}"
+
+    return ret
+
+
 def interpret_equation_string(equation_string):
 
     equation_string = replace_posible_equals(equation_string)

@@ -137,3 +137,6 @@ test_images/
 
 # PyCharm
 .idea/
+
+# Images
+*.jpeg

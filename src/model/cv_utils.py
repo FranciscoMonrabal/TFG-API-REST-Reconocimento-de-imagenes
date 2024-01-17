@@ -127,14 +127,12 @@ def analize_equation_and_image(predictions, bounding_boxes, img, labels):
         cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 0))
         cv2.putText(img, label, (x, y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 0))
 
-        cv2.imshow("Image", img)
-        cv2.waitKey(0)
 
     return equation, img
 
 
 def write_result(img, result, img_path):
-    cv2.putText(img, result, (10, 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 1, 2)
+    cv2.putText(img, result, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 1, 2)
     cv2.imwrite(img_path, img)
 
 

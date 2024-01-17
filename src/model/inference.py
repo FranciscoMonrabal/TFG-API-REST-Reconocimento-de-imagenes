@@ -3,8 +3,8 @@ import os
 import numpy as np
 from imutils.contours import sort_contours
 
-from cv_utils import *
-from sympy_utils import *
+from model.cv_utils import *
+from model.sympy_utils import *
 
 
 def run_interference(config):
@@ -29,6 +29,7 @@ def run_interference(config):
 
     final_string, img = analize_equation_and_image(predictions, bounding_boxes, img, labels)
     result = interpret_equation_string(final_string)
+    result = transform_result_list_into_string(result)
     write_result(img, result, config.get_final_image_path())
 
     # Implement in case the equation cant be solved
