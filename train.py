@@ -1,19 +1,21 @@
 from tensorflow import keras
 from keras import layers, models
 import matplotlib.pyplot as plt
+from sklearn.metrics import classification_report
+import numpy as np
 
 
 def main():
 
     # Parameter definition
-    dataset_dir = r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\datasets\dataset_augmented"
+    dataset_dir = r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\datasets\dataset_v2"
     img_height, img_width = 45, 45
     batch_size = 256
     epochs = 5
     num_classes = 20
 
     # Dataset import
-    train_df, val_df = keras.preprocessing.image_dataset_from_directory(
+    train_ds, test_ds = keras.preprocessing.image_dataset_from_directory(
         dataset_dir,
         labels='inferred',
         label_mode='int',
@@ -25,10 +27,8 @@ def main():
         color_mode='grayscale'
     )
 
-    # Normalization for lighter input values
-    #normalization_layer = layers.Rescaling(1./255)
-    #train_df = train_df.map(lambda x, y: (normalization_layer(x), y))
-    #val_df = val_df.map(lambda x, y: (normalization_layer(x), y))
+    val_ds = train_ds.skip(int(len(train_ds)*0.8))
+    train_ds = train_ds.take(int(len(train_ds)*0.8))
 
     # Model definition
     model = models.Sequential([
@@ -52,13 +52,13 @@ def main():
 
     # Train
     history = model.fit(
-        train_df,
-        validation_data=val_df,
+        train_ds,
+        validation_data=val_ds,
         epochs=epochs
     )
 
     model.save(
-        r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\models\symbol_recognition_9")
+        r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\models\symbol_recognition_12")
 
     # Summary analysis
     acc = history.history['accuracy']
@@ -82,6 +82,14 @@ def main():
     plt.legend(loc='upper right')
     plt.title('Training and Validation Loss')
     plt.show()
+
+    model_output = model.predict(test_ds)
+    pred_test = np.argmax(model_output, axis=1)
+    true_test = np.concatenate([y for x, y in test_ds], axis=0)
+    print(pred_test)
+    print(true_test)
+
+    print(classification_report(true_test, pred_test, labels=test_ds.class_names))
 
 
 if __name__ == "__main__":

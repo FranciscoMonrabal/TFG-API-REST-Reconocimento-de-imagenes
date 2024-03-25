@@ -33,7 +33,7 @@ def merge_boxes(source, target):
     tl1, br1 = source
     tl2, br2 = target
 
-    ret.append([min(tl1[0], tl2[0]), min(tl1[1], tl1[1])])
+    ret.append([min(tl1[0], tl2[0]), min(tl1[1], tl2[1])])
     ret.append([max(br1[0], br2[0]), max(br1[1], br2[1])])
 
     return ret

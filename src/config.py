@@ -11,9 +11,9 @@ class Config:
     sen_img_ext = r"sent_imgs"
 
     models_path = r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\models"
-    model_name = r"symbol_recognition_9"
+    model_name = r"symbol_recognition_10"
     dataset_path = r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\datasets"
-    dataset_name = r"dataset"
+    dataset_name = r"dataset_v2"
 
     def get_dataset_path(self):
         return os.path.join(self.dataset_path, self.dataset_name)

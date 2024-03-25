@@ -9,6 +9,7 @@ import numpy as np
 from sympy.core.sympify import sympify
 from sympy import Eq, solve
 from sympy.abc import x as X
+from
 
 # https://stackoverflow.com/questions/22356494/solve-2-sides-of-equation-with-sympy
 # In the case of boxes colliding, pick the biggest one
@@ -43,7 +44,7 @@ def merge_boxes(source, target):
     tl1, br1 = source
     tl2, br2 = target
 
-    ret.append([min(tl1[0], tl2[0]), min(tl1[1], tl1[1])])
+    ret.append([min(tl1[0], tl2[0]), min(tl1[1], tl2[1])])
     ret.append([max(br1[0], br2[0]), max(br1[1], br2[1])])
 
     return ret
@@ -177,7 +178,7 @@ def adjust_padding(distance):
 def main():
 
     img = cv2.imread(
-        r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\test_images\numbers.jpeg"
+        r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\test_images\ecuacion4.jpeg"
         , cv2.IMREAD_GRAYSCALE)
     blurred = cv2.GaussianBlur(img, (5, 5), 0)
 
@@ -240,10 +241,10 @@ def main():
 
     print(equation_chars)
     model = keras.models.load_model(
-        r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\models\symbol_recognition_9")
+        r"C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\models\symbol_recognition_11")
     predictions = model.predict(equation_chars)
     labels = sorted(os.listdir(
-        r'C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\datasets\dataset'))
+        r'C:\Users\paak1\Documents\PythonRepos\TFG\TFG-API-REST-Reconocimento-de-imagenes\datasets\dataset_v2'))
 
     final_string = ""
 
@@ -257,7 +258,7 @@ def main():
 
         print("[INFO] {} - {:.2f}%".format(label, probability*100))
         cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 0))
-        cv2.putText(img, label, (x, y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 0))
+        #cv2.putText(img, label, (x, y), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 0))
 
         cv2.imshow("Image", img)
         cv2.waitKey(0)

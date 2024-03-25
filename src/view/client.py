@@ -2,7 +2,7 @@ import requests
 import argparse
 import os
 import uuid
-import pathlib
+from client_configuration import CConfig
 
 
 def parse_arguments():
@@ -18,21 +18,23 @@ def make_request(ip, img_path):
     return requests.post(url=url, files=file)
 
 
-def download_request(response):
-
-    # os.path.join(pathlib.Path().parent.absolute(), r"\images", f"{str(uuid.uuid4())}.jpeg")
+def download_request(response, config):
 
     if response.status_code == 200:
-        with open(os.path.join(r"C:\Users\paak1\Documents\PythonRepos"
-                               r"\TFG\TFG-API-REST-Reconocimento-de-imagenes\src"
-                               r"\view\images", f"{str(uuid.uuid4())}.jpeg"), "wb") as f:
+        image = os.path.join(config.images_path, f"{str(uuid.uuid4())}.jpeg")
+        with open(image, "wb") as f:
             for stream in response.iter_content(1024):
                 f.write(stream)
+
+        print(f"200 | Path: {image}")
+    else:
+        print(response.content)
 
 
 def main():
     arguments = parse_arguments()
-    download_request(make_request(arguments.ip, arguments.path))
+    config = CConfig()
+    download_request(make_request(arguments.ip, arguments.path), config)
 
 
 if __name__ == "__main__":
