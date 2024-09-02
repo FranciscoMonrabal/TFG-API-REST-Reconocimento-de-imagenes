@@ -4,8 +4,11 @@ Client-Server Application. Server receives an image from the client, detects the
 
 Input image:
 
+![alt text](https://github.com/FranciscoMonrabal/TFG-API-REST-Reconocimento-de-imagenes/blob/main/readme_img/input.jpeg)
 
 Output image:
+
+![alt text](https://github.com/FranciscoMonrabal/TFG-API-REST-Reconocimento-de-imagenes/blob/main/readme_img/output.jpeg)
 
 #### Dataset
 https://www.kaggle.com/datasets/xainano/handwrittenmathsymbols
